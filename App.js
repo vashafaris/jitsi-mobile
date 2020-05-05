@@ -1,21 +1,62 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Button, TextInput} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  TextInput,
+  PermissionsAndroid,
+} from 'react-native';
 import JitsiMeet, {JitsiMeetView} from 'react-native-jitsi-meet';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 function App() {
+  useEffect(() => {
+    requestPermission();
+  }, []);
+
+  const requestPermission = async () => {
+    const granted = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+    );
+
+    console.log(granted);
+
+    if (!granted) {
+      try {
+        const audioPermission = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          {
+            title: 'Example App',
+            message: 'Example App access to your AUDIO ',
+          },
+        );
+        if (audioPermission === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('You can use the audio');
+          alert('You can use the audio');
+        } else {
+          console.log('location permission denied');
+          alert('Location permission denied');
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+  };
+
   function onConferenceTerminated(nativeEvent) {
     /* Conference terminated event */
-    // console.log(nativeEvent);
+    console.log('onterminated', nativeEvent);
   }
 
   function onConferenceJoined(nativeEvent) {
     /* Conference joined event */
-    // console.log(nativeEvent);
+    console.log('onjoined', nativeEvent);
   }
 
   function onConferenceWillJoin(nativeEvent) {
     /* Conference will join event */
-    // console.log(nativeEvent);
+    console.log('onwilljoin', nativeEvent);
   }
 
   const [room, setRoom] = useState('');
@@ -37,6 +78,7 @@ function App() {
           onChangeText={(text) => setRoom(text)}
           style={{color: 'white'}}
         />
+        <Icon name="home" />
       </View>
     </>
   );
